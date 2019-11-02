@@ -154,7 +154,7 @@ func (k Keeper) CloseLiquidStakingPosition(ctx sdk.Context, iaChanId string, nft
 	withdrawMsg := distribution.NewMsgWithdrawDelegatorReward(lspInfo.ChainAddress, lspInfo.Validator)
 	unbondingMsg := staking.NewMsgUndelegate(lspInfo.ChainAddress, lspInfo.Validator, lspInfo.BondedShare)
 
-	err = k.iaKeeper.SendMsgs(ctx, iaChanId, []sdk.Msg{unbondingMsg, setRecipientMsg, withdrawMsg})
+	err = k.iaKeeper.SendMsgs(ctx, iaChanId, []sdk.Msg{setRecipientMsg, withdrawMsg, unbondingMsg})
 	if err != nil {
 		return err
 	}
