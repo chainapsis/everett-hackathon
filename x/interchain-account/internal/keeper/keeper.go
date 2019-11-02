@@ -72,13 +72,15 @@ func (k Keeper) RegisterInterchainAccount(ctx sdk.Context, channelId string, sal
 			return types.ErrAccountAlreadyExist(types.DefaultCodespace)
 		}
 	} else {
-		account := k.ak.NewAccountWithAddress(ctx, address)
+		account = k.ak.NewAccountWithAddress(ctx, address)
 		err := account.SetSequence(1)
 		if err != nil {
 			return sdk.ErrInternal(err.Error())
 		}
-		k.ak.NewAccount(ctx, account)
+		account = k.ak.NewAccount(ctx, account)
 	}
+
+	k.ak.SetAccount(ctx, account)
 
 	store := ctx.KVStore(k.key)
 	// Ignore that which chain makes the interchain account.
