@@ -1,3 +1,5 @@
+echo "Relay register interchain account packet"
+
 evrtcli \
   --home ~/evrt-testnets/evrt0/n0/evrtcli/ \
   tx ibc channel pull interchainaccount chan4 \
@@ -7,6 +9,8 @@ evrtcli \
   --from n0 \
   --limit 1
 
+echo "Relay transfer asset packet"
+
 evrtcli \
   --home ~/evrt-testnets/evrt0/n0/evrtcli/ \
   tx ibc channel pull ibctransfer chan2 \
@@ -14,6 +18,8 @@ evrtcli \
   --node2 http://localhost:16657 \
   --chain-id2 evrt1 \
   --from n0
+
+echo "Relay run interchain tx packet"
 
 evrtcli \
   --home ~/evrt-testnets/evrt0/n0/evrtcli/ \
