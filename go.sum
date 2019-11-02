@@ -65,6 +65,8 @@ github.com/everett-protocol/cosmos-sdk v0.0.0-20191102062100-361974ad1924 h1:2j0
 github.com/everett-protocol/cosmos-sdk v0.0.0-20191102062100-361974ad1924/go.mod h1:67hqCx0waQyx20bfAvPuIFO9NcPWzNOOOT4TT/672Q0=
 github.com/everett-protocol/cosmos-sdk v0.0.0-20191102164523-da27a71faa9f h1:CKHTMXLnaK4FoOJ5TxreErxIqytMXf6Q5XUpt/Ws3IA=
 github.com/everett-protocol/cosmos-sdk v0.0.0-20191102164523-da27a71faa9f/go.mod h1:67hqCx0waQyx20bfAvPuIFO9NcPWzNOOOT4TT/672Q0=
+github.com/everett-protocol/cosmos-sdk v0.0.0-20191102221340-b889058be84d h1:Wl6k646+TDqCgsAIU/3HMQwEnz9rZ4v9f6Az/ux4lHg=
+github.com/everett-protocol/cosmos-sdk v0.0.0-20191102221340-b889058be84d/go.mod h1:67hqCx0waQyx20bfAvPuIFO9NcPWzNOOOT4TT/672Q0=
 github.com/facebookgo/ensure v0.0.0-20160127193407-b4ab57deab51/go.mod h1:Yg+htXGokKKdzcwhuNDwVvN+uBxDGXJ7G/VN1d8fa64=
 github.com/facebookgo/stack v0.0.0-20160209184415-751773369052/go.mod h1:UbMTZqLaRiH3MsBH8va0n7s1pQYcu3uTb8G4tygF4Zg=
 github.com/facebookgo/subset v0.0.0-20150612182917-8dac2c3c4870/go.mod h1:5tD+neXqOorC30/tWg0LCSkrqj/AR6gu8yY8/fpw1q0=

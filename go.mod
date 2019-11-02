@@ -29,4 +29,4 @@ require (
 	google.golang.org/genproto v0.0.0-20190801165951-fa694d86fc64 // indirect
 )
 
-replace github.com/cosmos/cosmos-sdk => github.com/everett-protocol/cosmos-sdk v0.0.0-20191102164523-da27a71faa9f
+replace github.com/cosmos/cosmos-sdk => github.com/everett-protocol/cosmos-sdk v0.0.0-20191102221340-b889058be84d

@@ -65,7 +65,7 @@ echo "Starting Everettd instances..."
 nohup evrtd --home evrt0/n0/evrtd --log_level="*:debug" start > evrt0.log &
 nohup evrtd --home evrt1/n0/evrtd --log_level="*:debug" start > evrt1.log &
 
-sleep 20
+sleep 10
 
 echo "Creating clients..."
 
