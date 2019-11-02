@@ -112,6 +112,14 @@ func (k Keeper) OpenLiquidStakingPosition(ctx sdk.Context, transferChanId string
 }
 
 func (k Keeper) CloseLiquidStakingPosition(ctx sdk.Context, iaChanId string, nftId string, sender sdk.AccAddress, recipient sdk.AccAddress) sdk.Error {
+	lspNft, err := k.nftKeeper.GetNFT(ctx, "lsp", nftId)
+	if err != nil {
+		return err
+	}
+	if !lspNft.GetOwner().Equals(sender) {
+		return sdk.ErrUnauthorized("you are not owner")
+	}
+
 	lspInfo, goErr := k.getLspInfo(ctx, nftId)
 	if goErr != nil {
 		return sdk.ErrInternal(goErr.Error())
