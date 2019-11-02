@@ -9,6 +9,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -59,6 +60,10 @@ Example:
 	`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			config := ctx.Config
+			config.Consensus.TimeoutPropose = time.Millisecond * 100
+			config.Consensus.TimeoutPrevote = time.Millisecond * 100
+			config.Consensus.TimeoutPrecommit = time.Millisecond * 100
+			config.Consensus.TimeoutCommit = time.Second
 
 			outputDir := viper.GetString(flagOutputDir)
 			chainID := viper.GetString(client.FlagChainID)
