@@ -13,6 +13,8 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 		switch msg := msg.(type) {
 		case types.MsgOpenLiquidStakingPosition:
 			return handleMsgOpenLiquidStakingPosition(ctx, k, msg)
+		case types.MsgCloseLiquidStakingPosition:
+			return handleMsgCloseLiquidStakingPosition(ctx, k, msg)
 		default:
 			return sdk.ErrUnknownRequest("unknown message").Result()
 		}
@@ -21,6 +23,15 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 
 func handleMsgOpenLiquidStakingPosition(ctx sdk.Context, k keeper.Keeper, msg types.MsgOpenLiquidStakingPosition) sdk.Result {
 	err := k.OpenLiquidStakingPosition(ctx, msg.TransferChanId, msg.InterchainAccountChanId, msg.Amount, msg.Sender, msg.Validator)
+	if err != nil {
+		return err.Result()
+	}
+
+	return sdk.Result{Events: ctx.EventManager().Events()}
+}
+
+func handleMsgCloseLiquidStakingPosition(ctx sdk.Context, k keeper.Keeper, msg types.MsgCloseLiquidStakingPosition) sdk.Result {
+	err := k.CloseLiquidStakingPosition(ctx, msg.InterchainAccountChanId, msg.NftId, msg.Sender, msg.Recipient)
 	if err != nil {
 		return err.Result()
 	}

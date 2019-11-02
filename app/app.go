@@ -25,6 +25,7 @@ import (
 	mockrecv "github.com/cosmos/cosmos-sdk/x/ibc/mock/recv"
 	mocksend "github.com/cosmos/cosmos-sdk/x/ibc/mock/send"
 	"github.com/cosmos/cosmos-sdk/x/mint"
+	"github.com/cosmos/cosmos-sdk/x/nft"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
@@ -60,6 +61,7 @@ var (
 		crisis.AppModuleBasic{},
 		slashing.AppModuleBasic{},
 		supply.AppModuleBasic{},
+		nft.AppModuleBasic{},
 		ibc.AppModuleBasic{},
 		mocksend.AppModuleBasic{},
 		mockrecv.AppModuleBasic{},
@@ -116,6 +118,7 @@ type GaiaApp struct {
 	govKeeper               gov.Keeper
 	crisisKeeper            crisis.Keeper
 	paramsKeeper            params.Keeper
+	nftKeeper               nft.Keeper
 	ibcKeeper               ibc.Keeper
 	ibcMockSendKeeper       mocksend.Keeper
 	ibcMockRecvKeeper       mockrecv.Keeper
@@ -143,7 +146,7 @@ func NewGaiaApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	keys := sdk.NewKVStoreKeys(
 		bam.MainStoreKey, auth.StoreKey, staking.StoreKey,
 		supply.StoreKey, mint.StoreKey, distr.StoreKey, slashing.StoreKey,
-		gov.StoreKey, params.StoreKey, ibc.StoreKey, mocksend.ModuleName, mockrecv.ModuleName, ibc_transfer.ModuleName, interchain_account.ModuleName, lsp.ModuleName,
+		gov.StoreKey, params.StoreKey, nft.StoreKey, ibc.StoreKey, mocksend.ModuleName, mockrecv.ModuleName, ibc_transfer.ModuleName, interchain_account.ModuleName, lsp.ModuleName,
 	)
 	tkeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
@@ -180,12 +183,13 @@ func NewGaiaApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		app.cdc, keys[slashing.StoreKey], &stakingKeeper, slashingSubspace, slashing.DefaultCodespace,
 	)
 	app.crisisKeeper = crisis.NewKeeper(crisisSubspace, invCheckPeriod, app.supplyKeeper, auth.FeeCollectorName)
+	app.nftKeeper = nft.NewKeeper(cdc, keys[nft.StoreKey])
 	app.ibcKeeper = ibc.NewKeeper(app.cdc, keys[ibc.StoreKey])
 	app.ibcMockSendKeeper = mocksend.NewKeeper(app.cdc, keys[mocksend.ModuleName], app.ibcKeeper.Port(mocksend.ModuleName))
 	app.ibcMockRecvKeeper = mockrecv.NewKeeper(app.cdc, keys[mockrecv.ModuleName], app.ibcKeeper.Port(mockrecv.ModuleName))
 	app.ibcTransferKeeper = ibc_transfer.NewKeeper(app.cdc, keys[ibc_transfer.ModuleName], app.supplyKeeper, app.ibcKeeper.Port(ibc_transfer.ModuleName))
 	app.interchainAccountKeeper = interchain_account.NewKeeper(app.cdc, app.cdc, keys[interchain_account.ModuleName], app.Router(), app.accountKeeper, app.ibcKeeper.Port(interchain_account.ModuleName))
-	app.lspKeeper = lsp.NewKeeper(app.cdc, app.keys[lsp.ModuleName], app.supplyKeeper, app.ibcTransferKeeper, app.interchainAccountKeeper)
+	app.lspKeeper = lsp.NewKeeper(app.cdc, app.keys[lsp.ModuleName], app.accountKeeper, app.supplyKeeper, app.nftKeeper, app.ibcTransferKeeper, app.interchainAccountKeeper)
 
 	// register the proposal types
 	govRouter := gov.NewRouter()
@@ -216,6 +220,7 @@ func NewGaiaApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		mint.NewAppModule(app.mintKeeper),
 		slashing.NewAppModule(app.slashingKeeper, app.stakingKeeper),
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
+		nft.NewAppModule(app.nftKeeper),
 		ibc.NewAppModule(app.ibcKeeper),
 		mocksend.NewAppModule(app.ibcMockSendKeeper),
 		mockrecv.NewAppModule(app.ibcMockRecvKeeper),

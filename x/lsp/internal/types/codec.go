@@ -6,6 +6,7 @@ import (
 
 func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(MsgOpenLiquidStakingPosition{}, "lsp/open", nil)
+	cdc.RegisterConcrete(MsgCloseLiquidStakingPosition{}, "lsp/close", nil)
 }
 
 var ModuleCdc *codec.Codec
