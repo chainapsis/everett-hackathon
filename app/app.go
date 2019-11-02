@@ -33,6 +33,7 @@ import (
 
 	"github.com/everett-protocol/everett-hackathon/x/ibc-transfer"
 	"github.com/everett-protocol/everett-hackathon/x/interchain-account"
+	"github.com/everett-protocol/everett-hackathon/x/lsp"
 )
 
 const appName = "GaiaApp"
@@ -64,6 +65,7 @@ var (
 		mockrecv.AppModuleBasic{},
 		ibc_transfer.AppModuleBasic{},
 		interchain_account.AppModuleBasic{},
+		lsp.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -118,6 +120,7 @@ type GaiaApp struct {
 	ibcMockRecvKeeper       mockrecv.Keeper
 	ibcTransferKeeper       ibc_transfer.Keeper
 	interchainAccountKeeper interchain_account.Keeper
+	lspKeeper               lsp.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -139,7 +142,7 @@ func NewGaiaApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	keys := sdk.NewKVStoreKeys(
 		bam.MainStoreKey, auth.StoreKey, staking.StoreKey,
 		supply.StoreKey, mint.StoreKey, distr.StoreKey, slashing.StoreKey,
-		gov.StoreKey, params.StoreKey, ibc.StoreKey, mocksend.ModuleName, mockrecv.ModuleName, ibc_transfer.ModuleName, interchain_account.ModuleName,
+		gov.StoreKey, params.StoreKey, ibc.StoreKey, mocksend.ModuleName, mockrecv.ModuleName, ibc_transfer.ModuleName, interchain_account.ModuleName, lsp.ModuleName,
 	)
 	tkeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
@@ -181,6 +184,7 @@ func NewGaiaApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	app.ibcMockRecvKeeper = mockrecv.NewKeeper(app.cdc, keys[mockrecv.ModuleName], app.ibcKeeper.Port(mockrecv.ModuleName))
 	app.ibcTransferKeeper = ibc_transfer.NewKeeper(app.cdc, keys[ibc_transfer.ModuleName], app.supplyKeeper, app.ibcKeeper.Port(ibc_transfer.ModuleName))
 	app.interchainAccountKeeper = interchain_account.NewKeeper(app.cdc, app.cdc, keys[interchain_account.ModuleName], app.Router(), app.accountKeeper, app.ibcKeeper.Port(interchain_account.ModuleName))
+	app.lspKeeper = lsp.NewKeeper(app.cdc, app.keys[lsp.ModuleName], app.supplyKeeper, app.ibcTransferKeeper, app.interchainAccountKeeper)
 
 	// register the proposal types
 	govRouter := gov.NewRouter()
@@ -216,6 +220,7 @@ func NewGaiaApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		mockrecv.NewAppModule(app.ibcMockRecvKeeper),
 		ibc_transfer.NewAppModule(app.ibcTransferKeeper),
 		interchain_account.NewAppModule(app.interchainAccountKeeper),
+		lsp.NewAppModule(app.lspKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
