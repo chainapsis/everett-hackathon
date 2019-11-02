@@ -37,7 +37,7 @@ func handlePacketTransfer(ctx sdk.Context, k keeper.Keeper, packet types.PacketT
 }
 
 func handleMsgTransfer(ctx sdk.Context, k keeper.Keeper, msg types.MsgTransfer) sdk.Result {
-	err := k.SendTransfer(ctx, msg.ChainId, msg.Amount, msg.Sender, msg.Receiver)
+	err := k.SendTransfer(ctx, msg.ChanId, msg.Amount, msg.Sender, msg.Receiver)
 	if err != nil {
 		return err.Result()
 	}
