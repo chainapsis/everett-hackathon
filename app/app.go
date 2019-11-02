@@ -77,6 +77,7 @@ var (
 		staking.NotBondedPoolName: {supply.Burner, supply.Staking},
 		gov.ModuleName:            {supply.Burner},
 		ibc_transfer.ModuleName:   {supply.Minter},
+		lsp.ModuleName:            {supply.Burner, supply.Minter},
 	}
 )
 
