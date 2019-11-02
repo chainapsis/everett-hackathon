@@ -135,7 +135,7 @@ func (k Keeper) CloseLiquidStakingPosition(ctx sdk.Context, iaChanId string, nft
 		return sdk.ErrUnauthorized("you don't have enough minted bonded token")
 	}
 
-	err := k.supplyKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, sdk.Coins{lspInfo.MintedLiquidity})
+	err = k.supplyKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, sdk.Coins{lspInfo.MintedLiquidity})
 	if err != nil {
 		return err
 	}
