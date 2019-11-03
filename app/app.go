@@ -35,6 +35,7 @@ import (
 	"github.com/everett-protocol/everett-hackathon/x/ibc-transfer"
 	"github.com/everett-protocol/everett-hackathon/x/interchain-account"
 	"github.com/everett-protocol/everett-hackathon/x/lsp"
+	"github.com/everett-protocol/everett-hackathon/x/swap"
 )
 
 const appName = "GaiaApp"
@@ -68,6 +69,7 @@ var (
 		ibc_transfer.AppModuleBasic{},
 		interchain_account.AppModuleBasic{},
 		lsp.AppModuleBasic{},
+		swap.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -125,6 +127,7 @@ type GaiaApp struct {
 	ibcTransferKeeper       ibc_transfer.Keeper
 	interchainAccountKeeper interchain_account.Keeper
 	lspKeeper               lsp.Keeper
+	swapKeeper              swap.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -146,7 +149,7 @@ func NewGaiaApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	keys := sdk.NewKVStoreKeys(
 		bam.MainStoreKey, auth.StoreKey, staking.StoreKey,
 		supply.StoreKey, mint.StoreKey, distr.StoreKey, slashing.StoreKey,
-		gov.StoreKey, params.StoreKey, nft.StoreKey, ibc.StoreKey, mocksend.ModuleName, mockrecv.ModuleName, ibc_transfer.ModuleName, interchain_account.ModuleName, lsp.ModuleName,
+		gov.StoreKey, params.StoreKey, nft.StoreKey, ibc.StoreKey, mocksend.ModuleName, mockrecv.ModuleName, ibc_transfer.ModuleName, interchain_account.ModuleName, lsp.ModuleName, swap.ModuleName,
 	)
 	tkeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
@@ -168,6 +171,7 @@ func NewGaiaApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	slashingSubspace := app.paramsKeeper.Subspace(slashing.DefaultParamspace)
 	govSubspace := app.paramsKeeper.Subspace(gov.DefaultParamspace).WithKeyTable(gov.ParamKeyTable())
 	crisisSubspace := app.paramsKeeper.Subspace(crisis.DefaultParamspace)
+	swapSubspace := app.paramsKeeper.Subspace(swap.DefaultParamSpace)
 
 	// add keepers
 	app.accountKeeper = auth.NewAccountKeeper(app.cdc, keys[auth.StoreKey], authSubspace, auth.ProtoBaseAccount)
@@ -190,6 +194,7 @@ func NewGaiaApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	app.ibcTransferKeeper = ibc_transfer.NewKeeper(app.cdc, keys[ibc_transfer.ModuleName], app.supplyKeeper, app.ibcKeeper.Port(ibc_transfer.ModuleName))
 	app.interchainAccountKeeper = interchain_account.NewKeeper(app.cdc, app.cdc, keys[interchain_account.ModuleName], app.Router(), app.accountKeeper, app.ibcKeeper.Port(interchain_account.ModuleName))
 	app.lspKeeper = lsp.NewKeeper(app.cdc, app.keys[lsp.ModuleName], app.accountKeeper, app.supplyKeeper, app.nftKeeper, app.ibcTransferKeeper, app.interchainAccountKeeper)
+	app.swapKeeper = swap.NewKeeper(app.cdc, app.keys[swap.ModuleName], swapSubspace)
 
 	// register the proposal types
 	govRouter := gov.NewRouter()
@@ -227,6 +232,7 @@ func NewGaiaApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		ibc_transfer.NewAppModule(app.ibcTransferKeeper),
 		interchain_account.NewAppModule(app.interchainAccountKeeper),
 		lsp.NewAppModule(app.lspKeeper),
+		swap.NewAppModule(app.swapKeeper, app.bankKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
