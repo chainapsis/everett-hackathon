@@ -28,7 +28,7 @@ func (AppModuleBasic) Name() string { return types.ModuleName }
 func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) { types.RegisterCodec(cdc) }
 
 func (AppModuleBasic) DefaultGenesis() json.RawMessage {
-	return nil
+	return types.ModuleCdc.MustMarshalJSON(DefaultGenesisState())
 }
 
 func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
@@ -85,7 +85,11 @@ func (AppModule) NewQuerierHandler() sdk.Querier {
 	return nil
 }
 
-func (AppModule) InitGenesis(ctx sdk.Context, data json.RawMessage) []abci.ValidatorUpdate {
+func (am AppModule) InitGenesis(ctx sdk.Context, data json.RawMessage) []abci.ValidatorUpdate {
+	var genesisState GenesisState
+	types.ModuleCdc.MustUnmarshalJSON(data, &genesisState)
+	InitGenesis(ctx, am.k, genesisState)
+
 	return []abci.ValidatorUpdate{}
 }
 
