@@ -42,6 +42,7 @@ var (
 	flagNodeCLIHome       = "node-cli-home"
 	flagStartingIPAddress = "starting-ip-address"
 	flagStakingDenom      = "staking-denom"
+	flagHighInflation     = "high-inflation"
 )
 
 // get cmd to initialize all files for tendermint testnet and application
@@ -76,9 +77,10 @@ Example:
 			startingIPAddress := viper.GetString(flagStartingIPAddress)
 			stakingDenom := viper.GetString(flagStakingDenom)
 			numValidators := viper.GetInt(flagNumValidators)
+			highInflation := viper.GetBool(flagHighInflation)
 
 			return InitTestnet(cmd, config, cdc, mbm, genAccIterator, outputDir, chainID,
-				minGasPrices, nodeDirPrefix, nodeDaemonHome, nodeCLIHome, startingIPAddress, stakingDenom, numValidators)
+				minGasPrices, nodeDirPrefix, nodeDaemonHome, nodeCLIHome, startingIPAddress, stakingDenom, numValidators, highInflation)
 		},
 	}
 
@@ -95,6 +97,7 @@ Example:
 	cmd.Flags().String(flagStartingIPAddress, "192.168.0.1",
 		"Starting IP address (192.168.0.1 results in persistent peers list ID0@192.168.0.1:46656, ID1@192.168.0.2:46656, ...)")
 	cmd.Flags().String(flagStakingDenom, sdk.DefaultBondDenom, "Coin denom for staking")
+	cmd.Flags().Bool(flagHighInflation, false, "Set inflation high for demo")
 	cmd.Flags().String(
 		client.FlagChainID, "", "genesis file chain-id, if left blank will be randomly created")
 	cmd.Flags().String(
@@ -109,7 +112,7 @@ const nodeDirPerm = 0755
 func InitTestnet(cmd *cobra.Command, config *tmconfig.Config, cdc *codec.Codec,
 	mbm module.BasicManager, genAccIterator genutiltypes.GenesisAccountsIterator,
 	outputDir, chainID, minGasPrices, nodeDirPrefix, nodeDaemonHome,
-	nodeCLIHome, startingIPAddress, stakingDenom string, numValidators int) error {
+	nodeCLIHome, startingIPAddress, stakingDenom string, numValidators int, highInflation bool) error {
 
 	if chainID == "" {
 		chainID = "chain-" + cmn.RandStr(6)
@@ -248,7 +251,7 @@ func InitTestnet(cmd *cobra.Command, config *tmconfig.Config, cdc *codec.Codec,
 		srvconfig.WriteConfigFile(gaiaConfigFilePath, gaiaConfig)
 	}
 
-	if err := initGenFiles(cdc, mbm, chainID, genAccounts, genFiles, numValidators, stakingDenom); err != nil {
+	if err := initGenFiles(cdc, mbm, chainID, genAccounts, genFiles, numValidators, stakingDenom, highInflation); err != nil {
 		return err
 	}
 
@@ -266,7 +269,7 @@ func InitTestnet(cmd *cobra.Command, config *tmconfig.Config, cdc *codec.Codec,
 
 func initGenFiles(
 	cdc *codec.Codec, mbm module.BasicManager, chainID string,
-	genAccounts []authexported.GenesisAccount, genFiles []string, numValidators int, stakingDenom string,
+	genAccounts []authexported.GenesisAccount, genFiles []string, numValidators int, stakingDenom string, highInflation bool,
 ) error {
 
 	appGenState := mbm.DefaultGenesis()
@@ -283,6 +286,12 @@ func initGenFiles(
 	var mintGenState mint.GenesisState
 	cdc.MustUnmarshalJSON(mintDataBz, &mintGenState)
 	mintGenState.Params.MintDenom = stakingDenom
+	if highInflation {
+		mintGenState.Minter.Inflation = sdk.NewDec(2)
+		mintGenState.Params.InflationMin = sdk.NewDec(2)
+		mintGenState.Params.InflationMax = sdk.NewDec(2)
+		mintGenState.Params.InflationRateChange = sdk.NewDec(100)
+	}
 	appGenState[mint.ModuleName] = cdc.MustMarshalJSON(mintGenState)
 
 	// set the accounts in the genesis state
