@@ -7,8 +7,8 @@ killall evrtd
 echo "Generating configurations..."
 
 cd ~ && mkdir -p evrt-testnets && cd evrt-testnets
-echo -e "\n" | evrtd testnet -o evrt0 --v 1 --chain-id evrt0 --node-dir-prefix n --node-cli-home evrtcli --node-daemon-home evrtd
-echo -e "\n" | evrtd testnet -o evrt1 --v 1 --chain-id evrt1 --node-dir-prefix n --node-cli-home evrtcli --node-daemon-home evrtd
+echo -e "\n" | evrtd testnet -o evrt0 --v 1 --chain-id evrt0 --node-dir-prefix n --node-cli-home evrtcli --node-daemon-home evrtd --staking-denom uatom
+echo -e "\n" | evrtd testnet -o evrt1 --v 1 --chain-id evrt1 --node-dir-prefix n --node-cli-home evrtcli --node-daemon-home evrtd --staking-denom uevrt
 
 if [ "$(uname)" = "Linux" ]; then
   sed -i 's/"leveldb"/"goleveldb"/g' evrt0/n0/evrtd/config/config.toml

@@ -40,6 +40,7 @@ var (
 	flagNodeDaemonHome    = "node-daemon-home"
 	flagNodeCLIHome       = "node-cli-home"
 	flagStartingIPAddress = "starting-ip-address"
+	flagStakingDenom      = "staking-denom"
 )
 
 // get cmd to initialize all files for tendermint testnet and application
@@ -72,10 +73,11 @@ Example:
 			nodeDaemonHome := viper.GetString(flagNodeDaemonHome)
 			nodeCLIHome := viper.GetString(flagNodeCLIHome)
 			startingIPAddress := viper.GetString(flagStartingIPAddress)
+			stakingDenom := viper.GetString(flagStakingDenom)
 			numValidators := viper.GetInt(flagNumValidators)
 
 			return InitTestnet(cmd, config, cdc, mbm, genAccIterator, outputDir, chainID,
-				minGasPrices, nodeDirPrefix, nodeDaemonHome, nodeCLIHome, startingIPAddress, numValidators)
+				minGasPrices, nodeDirPrefix, nodeDaemonHome, nodeCLIHome, startingIPAddress, stakingDenom, numValidators)
 		},
 	}
 
@@ -91,6 +93,7 @@ Example:
 		"Home directory of the node's cli configuration")
 	cmd.Flags().String(flagStartingIPAddress, "192.168.0.1",
 		"Starting IP address (192.168.0.1 results in persistent peers list ID0@192.168.0.1:46656, ID1@192.168.0.2:46656, ...)")
+	cmd.Flags().String(flagStakingCoin, sdk.DefaultBondDenom, "Coin denom for staking")
 	cmd.Flags().String(
 		client.FlagChainID, "", "genesis file chain-id, if left blank will be randomly created")
 	cmd.Flags().String(
@@ -105,7 +108,7 @@ const nodeDirPerm = 0755
 func InitTestnet(cmd *cobra.Command, config *tmconfig.Config, cdc *codec.Codec,
 	mbm module.BasicManager, genAccIterator genutiltypes.GenesisAccountsIterator,
 	outputDir, chainID, minGasPrices, nodeDirPrefix, nodeDaemonHome,
-	nodeCLIHome, startingIPAddress string, numValidators int) error {
+	nodeCLIHome, startingIPAddress, stakingDenom string, numValidators int) error {
 
 	if chainID == "" {
 		chainID = "chain-" + cmn.RandStr(6)
@@ -200,7 +203,7 @@ func InitTestnet(cmd *cobra.Command, config *tmconfig.Config, cdc *codec.Codec,
 		accStakingTokens := sdk.TokensFromConsensusPower(500)
 		coins := sdk.Coins{
 			sdk.NewCoin(fmt.Sprintf("%stoken", nodeDirName), accTokens),
-			sdk.NewCoin(sdk.DefaultBondDenom, accStakingTokens),
+			sdk.NewCoin(stakingDenom, accStakingTokens),
 		}
 		genAccounts = append(genAccounts, auth.NewBaseAccount(addr, coins.Sort(), nil, 0, 0))
 
@@ -208,7 +211,7 @@ func InitTestnet(cmd *cobra.Command, config *tmconfig.Config, cdc *codec.Codec,
 		msg := staking.NewMsgCreateValidator(
 			sdk.ValAddress(addr),
 			valPubKeys[i],
-			sdk.NewCoin(sdk.DefaultBondDenom, valTokens),
+			sdk.NewCoin(stakingDenom, valTokens),
 			staking.NewDescription(nodeDirName, "", "", "", ""),
 			staking.NewCommissionRates(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
 			sdk.OneInt(),
@@ -246,7 +249,7 @@ func InitTestnet(cmd *cobra.Command, config *tmconfig.Config, cdc *codec.Codec,
 		srvconfig.WriteConfigFile(gaiaConfigFilePath, gaiaConfig)
 	}
 
-	if err := initGenFiles(cdc, mbm, chainID, genAccounts, genFiles, numValidators); err != nil {
+	if err := initGenFiles(cdc, mbm, chainID, genAccounts, genFiles, numValidators, stakingDenom); err != nil {
 		return err
 	}
 
@@ -264,10 +267,17 @@ func InitTestnet(cmd *cobra.Command, config *tmconfig.Config, cdc *codec.Codec,
 
 func initGenFiles(
 	cdc *codec.Codec, mbm module.BasicManager, chainID string,
-	genAccounts []authexported.GenesisAccount, genFiles []string, numValidators int,
+	genAccounts []authexported.GenesisAccount, genFiles []string, numValidators int, stakingDenom string,
 ) error {
 
 	appGenState := mbm.DefaultGenesis()
+
+	// set the bond denom for staking module
+	stakingDataBz := appGenState[staking.ModuleName]
+	var stakingGenState staking.GenesisState
+	cdc.MustUnmarshalJSON(stakingDataBz, &stakingGenState)
+	stakingGenState.Params.BondDenom = stakingDenom
+	appGenState[staking.ModuleName] = cdc.MustMarshalJSON(stakingGenState)
 
 	// set the accounts in the genesis state
 	authDataBz := appGenState[auth.ModuleName]
