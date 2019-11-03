@@ -94,7 +94,7 @@ Example:
 		"Home directory of the node's cli configuration")
 	cmd.Flags().String(flagStartingIPAddress, "192.168.0.1",
 		"Starting IP address (192.168.0.1 results in persistent peers list ID0@192.168.0.1:46656, ID1@192.168.0.2:46656, ...)")
-	cmd.Flags().String(flagStakingCoin, sdk.DefaultBondDenom, "Coin denom for staking")
+	cmd.Flags().String(flagStakingDenom, sdk.DefaultBondDenom, "Coin denom for staking")
 	cmd.Flags().String(
 		client.FlagChainID, "", "genesis file chain-id, if left blank will be randomly created")
 	cmd.Flags().String(
