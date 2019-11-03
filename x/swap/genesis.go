@@ -28,6 +28,10 @@ func DefaultGenesisState() GenesisState {
 				BalanceCoin:  sdk.NewCoin("uevrt", sdk.NewInt(10000000)),
 				BalanceToken: sdk.NewCoin("buatom", sdk.NewInt(10000000)),
 			},
+			types.Pool{
+				BalanceCoin:  sdk.NewCoin("uevrt", sdk.NewInt(10000000)),
+				BalanceToken: sdk.NewCoin("uatom", sdk.NewInt(10000000)),
+			},
 		},
 	)
 }
