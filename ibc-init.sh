@@ -67,6 +67,11 @@ nohup evrtd --home evrt1/n0/evrtd --log_level="*:debug" start > evrt1.log &
 
 sleep 10
 
+echo "Starting rest server..."
+
+nohub evrtcli --home ~/evrt-testnets/evrt0/n0/evrtcli/ rest-server --trust-node --laddr tcp://localhost:1317 &
+nohub evrtcli --home ~/evrt-testnets/evrt1/n0/evrtcli/ rest-server --trust-node --laddr tcp://localhost:2317 &
+
 echo "Creating clients..."
 
 # client for chain ibc1 on chain ibc0
