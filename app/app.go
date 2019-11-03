@@ -247,7 +247,7 @@ func NewGaiaApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	app.mm.SetOrderInitGenesis(
 		distr.ModuleName, staking.ModuleName, auth.ModuleName, bank.ModuleName,
 		slashing.ModuleName, gov.ModuleName, mint.ModuleName, supply.ModuleName,
-		crisis.ModuleName, genutil.ModuleName,
+		crisis.ModuleName, genutil.ModuleName, swap.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)
