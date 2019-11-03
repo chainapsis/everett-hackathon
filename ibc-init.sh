@@ -69,8 +69,8 @@ sleep 10
 
 echo "Starting rest server..."
 
-nohub evrtcli --home ~/evrt-testnets/evrt0/n0/evrtcli/ rest-server --trust-node --laddr tcp://localhost:1317 &
-nohub evrtcli --home ~/evrt-testnets/evrt1/n0/evrtcli/ rest-server --trust-node --laddr tcp://localhost:2317 &
+nohup evrtcli --home ~/evrt-testnets/evrt0/n0/evrtcli/ rest-server --trust-node --laddr tcp://localhost:1317 &
+nohup evrtcli --home ~/evrt-testnets/evrt1/n0/evrtcli/ rest-server --trust-node --laddr tcp://localhost:2317 &
 
 echo "Creating clients..."
 

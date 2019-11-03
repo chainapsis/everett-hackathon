@@ -283,7 +283,7 @@ func initGenFiles(
 	// set the minting denom
 	mintDataBz := appGenState[mint.ModuleName]
 	var mintGenState mint.GenesisState
-	cdc.MustUnmarshalJSON(mintDataBz, &mintDataBz)
+	cdc.MustUnmarshalJSON(mintDataBz, &mintGenState)
 	mintGenState.Params.MintDenom = stakingDenom
 	appGenState[mint.ModuleName] = cdc.MustMarshalJSON(mintGenState)
 
