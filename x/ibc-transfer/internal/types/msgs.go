@@ -11,7 +11,7 @@ import (
 type MsgTransfer struct {
 	// SourcePort    string         `json:"source_port" yaml:"source_port"`       // the port on which the packet will be sent
 	// SourceChannel string         `json:"source_channel" yaml:"source_channel"` // the channel by which the packet will be sent
-	ChanId   string         `json:"chain_id" yaml:"chain_id"`
+	ChanId   string         `json:"chan_id" yaml:"chan_id"`
 	Amount   sdk.Coins      `json:"amount" yaml:"amount"`     // the tokens to be transferred
 	Sender   sdk.AccAddress `json:"sender" yaml:"sender"`     // the sender address
 	Receiver sdk.AccAddress `json:"receiver" yaml:"receiver"` // the recipient address on the destination chain
