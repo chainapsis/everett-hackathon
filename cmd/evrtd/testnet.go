@@ -6,6 +6,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/x/mint"
 	"net"
 	"os"
 	"path/filepath"
@@ -278,6 +279,13 @@ func initGenFiles(
 	cdc.MustUnmarshalJSON(stakingDataBz, &stakingGenState)
 	stakingGenState.Params.BondDenom = stakingDenom
 	appGenState[staking.ModuleName] = cdc.MustMarshalJSON(stakingGenState)
+
+	// set the minting denom
+	mintDataBz := appGenState[mint.ModuleName]
+	var mintGenState mint.GenesisState
+	cdc.MustUnmarshalJSON(mintDataBz, &mintDataBz)
+	mintGenState.Params.MintDenom = stakingDenom
+	appGenState[mint.ModuleName] = cdc.MustMarshalJSON(mintGenState)
 
 	// set the accounts in the genesis state
 	authDataBz := appGenState[auth.ModuleName]
