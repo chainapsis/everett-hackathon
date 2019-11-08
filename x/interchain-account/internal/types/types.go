@@ -7,3 +7,5 @@ import (
 type InterchainAccountTx struct {
 	Msgs []sdk.Msg
 }
+
+const CosmosSdkChainType = "cosmos-sdk"

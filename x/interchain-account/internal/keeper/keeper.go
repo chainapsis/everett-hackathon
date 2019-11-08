@@ -33,6 +33,20 @@ func NewKeeper(cdc *codec.Codec, counterpartyCdc *codec.Codec, key sdk.StoreKey,
 }
 
 func (k Keeper) RegisterInterchainAccount(ctx sdk.Context, channelId string, salt string) sdk.Error {
+	address, err := k.GenerateAddress("{packet/sourcePort}/{packet.sourceChannel}", salt)
+	if err != nil {
+		return sdk.ErrInternal(err.Error())
+	}
+
+	sdkErr := k.CreateAccount(ctx, address)
+	if sdkErr != nil {
+		return sdkErr
+	}
+
+	return nil
+}
+
+func (k Keeper) CreateAccount(ctx sdk.Context, address sdk.AccAddress) sdk.Error {
 	/*
 		path = "{packet.sourcePort}/{packet.sourceChannel}"
 		address = sha256(path + packet.salt)
@@ -61,10 +75,6 @@ func (k Keeper) RegisterInterchainAccount(ctx sdk.Context, channelId string, sal
 
 	// Currently, it seems that there is no way to get the information of counterparty chain.
 	// So, just don't use path for hackathon version.
-	address, err := k.CalcAddress("", salt)
-	if err != nil {
-		return sdk.ErrInternal(err.Error())
-	}
 
 	account := k.ak.GetAccount(ctx, address)
 	if account != nil {
@@ -91,24 +101,28 @@ func (k Keeper) RegisterInterchainAccount(ctx sdk.Context, channelId string, sal
 }
 
 // Determine account's address that will be created.
-func (k Keeper) CalcAddress(path string, salt string) ([]byte, error) {
+func (k Keeper) GenerateAddress(identifier string, salt string) ([]byte, error) {
 	hash := tmhash.NewTruncated()
-	hashsum := hash.Sum([]byte(path + salt))
+	hashsum := hash.Sum([]byte(identifier + salt))
 	return hashsum, nil
 }
 
-func (k Keeper) SendMsgs(ctx sdk.Context, chanId string, msgs []sdk.Msg) sdk.Error {
-	interchainAccountTx := types.InterchainAccountTx{Msgs: msgs}
-	txBytes, err := k.counterpartyCdc.MarshalBinaryLengthPrefixed(interchainAccountTx)
-	if err != nil {
-		return sdk.ErrInternal(err.Error())
-	}
-	packet := types.PacketRunInterchainAccountTx{TxBytes: txBytes}
+func (k Keeper) CreateOutgoingPacket(ctx sdk.Context, chainType string, chanId string, msgs []sdk.Msg) sdk.Error {
+	if chainType == types.CosmosSdkChainType {
+		interchainAccountTx := types.InterchainAccountTx{Msgs: msgs}
+		txBytes, err := k.counterpartyCdc.MarshalBinaryLengthPrefixed(interchainAccountTx)
+		if err != nil {
+			return sdk.ErrInternal(err.Error())
+		}
+		packet := types.RunTxPacketData{TxBytes: txBytes}
 
-	return k.port.Send(ctx, chanId, packet)
+		return k.port.Send(ctx, chanId, packet)
+	} else {
+		return types.ErrUnsupportedChainType(types.DefaultCodespace)
+	}
 }
 
-func (k Keeper) UnmarshalTx(ctx sdk.Context, txBytes []byte) (types.InterchainAccountTx, error) {
+func (k Keeper) DeserializeTx(ctx sdk.Context, txBytes []byte) (types.InterchainAccountTx, error) {
 	tx := types.InterchainAccountTx{}
 	err := k.counterpartyCdc.UnmarshalBinaryLengthPrefixed(txBytes, &tx)
 	return tx, err

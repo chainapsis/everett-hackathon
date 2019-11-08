@@ -45,7 +45,7 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, accountKeeper auth.AccountKee
 
 func (k Keeper) OpenLiquidStakingPosition(ctx sdk.Context, transferChanId string, iaChanId string, amount sdk.Coin, sender sdk.AccAddress, validator sdk.ValAddress) sdk.Error {
 	salt := k.getSalt(ctx)
-	registerPacket := interchainaccount.PacketRegisterInterchainAccount{
+	registerPacket := interchainaccount.RegisterIBCAccountPacketData{
 		Salt: salt,
 	}
 
@@ -60,7 +60,7 @@ func (k Keeper) OpenLiquidStakingPosition(ctx sdk.Context, transferChanId string
 	}
 
 	// Predict the address will be made
-	address, goErr := k.iaKeeper.CalcAddress("", salt)
+	address, goErr := k.iaKeeper.GenerateAddress("{packet/sourcePort}/{packet.sourceChannel}", salt)
 	if goErr != nil {
 		return sdk.ErrInternal(goErr.Error())
 	}
@@ -72,7 +72,7 @@ func (k Keeper) OpenLiquidStakingPosition(ctx sdk.Context, transferChanId string
 	}
 
 	delegateMsg := staking.NewMsgDelegate(address, validator, amount)
-	err = k.iaKeeper.SendMsgs(ctx, iaChanId, []sdk.Msg{delegateMsg})
+	err = k.iaKeeper.CreateOutgoingPacket(ctx, interchainaccount.CosmosSdkChainType, iaChanId, []sdk.Msg{delegateMsg})
 	if err != nil {
 		return err
 	}
@@ -154,7 +154,7 @@ func (k Keeper) CloseLiquidStakingPosition(ctx sdk.Context, iaChanId string, nft
 	withdrawMsg := distribution.NewMsgWithdrawDelegatorReward(lspInfo.ChainAddress, lspInfo.Validator)
 	unbondingMsg := staking.NewMsgUndelegate(lspInfo.ChainAddress, lspInfo.Validator, lspInfo.BondedShare)
 
-	err = k.iaKeeper.SendMsgs(ctx, iaChanId, []sdk.Msg{setRecipientMsg, withdrawMsg, unbondingMsg})
+	err = k.iaKeeper.CreateOutgoingPacket(ctx, interchainaccount.CosmosSdkChainType, iaChanId, []sdk.Msg{setRecipientMsg, withdrawMsg, unbondingMsg})
 	if err != nil {
 		return err
 	}

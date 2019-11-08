@@ -14,9 +14,9 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 		switch msg := msg.(type) {
 		case ibc.MsgPacket:
 			switch packet := msg.Packet.(type) {
-			case types.PacketRegisterInterchainAccount:
+			case types.RegisterIBCAccountPacketData:
 				return handleRegisterInterchainAccount(ctx, k, msg.ChannelID, packet)
-			case types.PacketRunInterchainAccountTx:
+			case types.RunTxPacketData:
 				return handleRunInterchainAccountTx(ctx, k, msg.ChannelID, packet)
 			default:
 				return sdk.ErrUnknownRequest("unknown packet").Result()
@@ -27,7 +27,7 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 	}
 }
 
-func handleRegisterInterchainAccount(ctx sdk.Context, k keeper.Keeper, channelId string, packet types.PacketRegisterInterchainAccount) sdk.Result {
+func handleRegisterInterchainAccount(ctx sdk.Context, k keeper.Keeper, channelId string, packet types.RegisterIBCAccountPacketData) sdk.Result {
 	err := k.RegisterInterchainAccount(ctx, channelId, packet.Salt)
 	if err != nil {
 		return err.Result()
@@ -36,8 +36,8 @@ func handleRegisterInterchainAccount(ctx sdk.Context, k keeper.Keeper, channelId
 	return sdk.Result{Events: ctx.EventManager().Events()}
 }
 
-func handleRunInterchainAccountTx(ctx sdk.Context, k keeper.Keeper, channelId string, packet types.PacketRunInterchainAccountTx) sdk.Result {
-	interchainAccountTx, err := k.UnmarshalTx(ctx, packet.TxBytes)
+func handleRunInterchainAccountTx(ctx sdk.Context, k keeper.Keeper, channelId string, packet types.RunTxPacketData) sdk.Result {
+	interchainAccountTx, err := k.DeserializeTx(ctx, packet.TxBytes)
 	if err != nil {
 		return sdk.ErrInternal(err.Error()).Result()
 	}

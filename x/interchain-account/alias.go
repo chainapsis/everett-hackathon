@@ -6,7 +6,8 @@ import (
 )
 
 const (
-	ModuleName = types.ModuleName
+	ModuleName         = types.ModuleName
+	CosmosSdkChainType = types.CosmosSdkChainType
 )
 
 var (
@@ -14,8 +15,8 @@ var (
 )
 
 type (
-	Keeper                          = keeper.Keeper
-	PacketRunInterchainAccountTx    = types.PacketRunInterchainAccountTx
-	PacketRegisterInterchainAccount = types.PacketRegisterInterchainAccount
-	InterchainAccountTx             = types.InterchainAccountTx
+	Keeper                       = keeper.Keeper
+	RunTxPacketData              = types.RunTxPacketData
+	RegisterIBCAccountPacketData = types.RegisterIBCAccountPacketData
+	InterchainAccountTx          = types.InterchainAccountTx
 )

@@ -7,68 +7,68 @@ import (
 
 const RouterKey = ModuleName
 
-type PacketRegisterInterchainAccount struct {
+type RegisterIBCAccountPacketData struct {
 	Salt string `json:"salt"`
 }
 
-var _ ibc.Packet = PacketRegisterInterchainAccount{}
+var _ ibc.Packet = RegisterIBCAccountPacketData{}
 
-func (packet PacketRegisterInterchainAccount) SenderPort() string {
+func (packet RegisterIBCAccountPacketData) SenderPort() string {
 	return RouterKey
 }
 
-func (packet PacketRegisterInterchainAccount) ReceiverPort() string {
+func (packet RegisterIBCAccountPacketData) ReceiverPort() string {
 	return RouterKey
 }
 
-func (packet PacketRegisterInterchainAccount) Type() string {
+func (packet RegisterIBCAccountPacketData) Type() string {
 	return "register-interchain-account"
 }
 
-func (packet PacketRegisterInterchainAccount) ValidateBasic() sdk.Error {
+func (packet RegisterIBCAccountPacketData) ValidateBasic() sdk.Error {
 	if len(packet.Salt) == 0 {
 		return sdk.ErrInternal("salt is empty")
 	}
 	return nil
 }
 
-func (packet PacketRegisterInterchainAccount) Timeout() uint64 {
+func (packet RegisterIBCAccountPacketData) Timeout() uint64 {
 	return 0
 }
 
-func (packet PacketRegisterInterchainAccount) Marshal() []byte {
+func (packet RegisterIBCAccountPacketData) Marshal() []byte {
 	return ModuleCdc.MustMarshalBinaryBare(packet)
 }
 
-type PacketRunInterchainAccountTx struct {
+type RunTxPacketData struct {
 	TxBytes []byte `json:"tx_bytes"`
 }
 
-var _ ibc.Packet = PacketRunInterchainAccountTx{}
+var _ ibc.Packet = RunTxPacketData{}
 
-func (packet PacketRunInterchainAccountTx) SenderPort() string {
+func (packet RunTxPacketData) SenderPort() string {
 	return RouterKey
 }
 
-func (packet PacketRunInterchainAccountTx) ReceiverPort() string {
+func (packet RunTxPacketData) ReceiverPort() string {
 	return RouterKey
 }
 
-func (packet PacketRunInterchainAccountTx) Type() string {
+func (packet RunTxPacketData) Type() string {
 	return "run-interchainaccount-tx"
 }
 
-func (packet PacketRunInterchainAccountTx) ValidateBasic() sdk.Error {
+func (packet RunTxPacketData) ValidateBasic() sdk.Error {
 	if len(packet.TxBytes) == 0 {
 		return sdk.ErrInternal("tx bytes is empty")
 	}
 	return nil
 }
 
-func (packet PacketRunInterchainAccountTx) Timeout() uint64 {
+func (packet RunTxPacketData) Timeout() uint64 {
 	return 0
 }
 
-func (packet PacketRunInterchainAccountTx) Marshal() []byte {
+func (packet RunTxPacketData) Marshal() []byte {
 	return ModuleCdc.MustMarshalBinaryBare(packet)
 }

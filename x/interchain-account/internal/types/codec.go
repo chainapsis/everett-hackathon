@@ -10,8 +10,8 @@ func registerInterface(cdc *codec.Codec) {
 }
 
 func RegisterCodec(cdc *codec.Codec) {
-	cdc.RegisterConcrete(PacketRegisterInterchainAccount{}, "ibc/RegisterInterchainAccount", nil)
-	cdc.RegisterConcrete(PacketRunInterchainAccountTx{}, "ibc/RunInterchainAccountTx", nil)
+	cdc.RegisterConcrete(RegisterIBCAccountPacketData{}, "ibc/RegisterInterchainAccount", nil)
+	cdc.RegisterConcrete(RunTxPacketData{}, "ibc/RunInterchainAccountTx", nil)
 }
 
 var ModuleCdc *codec.Codec
